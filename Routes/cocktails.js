@@ -11,7 +11,33 @@ router.get('/', async (req, res) => {
     }
 });
 
-//sranje
+router.get('/ingredients', async (req, res) => {
+    try {
+        const cocktails = await Cocktail.find({});
+        const allIngredients = {
+            alcohol: [],
+            juice: [],
+            other: []
+        };
+
+        cocktails.forEach(cocktail => {
+            allIngredients.alcohol.push(...cocktail.ingredients.alcohol);
+            allIngredients.juice.push(...cocktail.ingredients.juice);
+            allIngredients.other.push(...cocktail.ingredients.other);
+        });
+
+        const uniqueIngredients = {
+            alcohol: [...new Set(allIngredients.alcohol)],
+            juice: [...new Set(allIngredients.juice)],
+            other: [...new Set(allIngredients.other)]
+        };
+
+        res.json(uniqueIngredients);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch ingredients.", error });
+    }
+});
+
 router.get('/search', async (req, res) => {
     const { alcohol, juice, other } = req.query;
 
@@ -22,16 +48,13 @@ router.get('/search', async (req, res) => {
     ];
 
     try {
-        //dohvati sve
         const allCocktails = await Cocktail.find({});
         const matchingCocktails = allCocktails.filter(cocktail => {
             const totalIngredients = [
-                //ignoriranje case sensitive
                 ...cocktail.ingredients.alcohol.map(ing => ing.toLowerCase().trim()),
                 ...cocktail.ingredients.juice.map(ing => ing.toLowerCase().trim()),
                 ...cocktail.ingredients.other.map(ing => ing.toLowerCase().trim())
             ];
-            // filtriraj
             return totalIngredients.every(ing => selectedIngredients.includes(ing));
         });
 
@@ -65,22 +88,5 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ message: "Failed to delete cocktail.", error });
     }
 });
-
-router.put('/toggle-favorite/:id', async (req, res) => {
-    try {
-        const cocktail = await Cocktail.findById(req.params.id);
-        if(!cocktail) {
-            return res.status(404).json({ message: "Cocktail not found!" });
-        }
-
-        cocktail.isFavorite = !cocktail.isFavorite;
-        await cocktail.save();
-
-        res.status(200).json({ message: "Favorite status updated successfully!", cocktail });
-    } catch (error) {
-        res.status(500).json({ message: "Failed to update favorite status.", error });
-    }
-});
-
 
 module.exports = router;
