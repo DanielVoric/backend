@@ -6,7 +6,9 @@ const CocktailSchema = mongoose.Schema({
         alcohol: [String],
         juice: [String],
         other: [String]
-    }
+    },
+    isFavorite: { type: Boolean, default: false }
 });
+
 
 module.exports = mongoose.model('Cocktail', CocktailSchema);
