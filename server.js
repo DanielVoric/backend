@@ -1,7 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const cocktailRoutes = require('./Routes/cocktails'); // importanje rute
+const cocktailRoutes = require('./Routes/cocktails'); 
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,6 +22,7 @@ mongoose.connection.once('open', () => {
 
 // Koristenje importane rute
 app.use('/cocktails', cocktailRoutes); 
+app.use('/auth', authRoutes);
 
 // Starting the server
 app.listen(PORT, () => {
