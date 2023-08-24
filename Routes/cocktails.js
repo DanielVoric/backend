@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Cocktail = require('../models/Cocktail'); 
+const User = require('../models/User');
+const { verifyToken } = require('./Auth');
 
 router.get('/', async (req, res) => {
     try {
@@ -66,6 +68,11 @@ router.get('/search', async (req, res) => {
 
 router.post('/', async (req, res) => {
     const cocktailData = req.body;
+    //da ne salje prazan string
+    cocktailData.ingredients.alcohol = cocktailData.ingredients.alcohol.filter(Boolean);
+    cocktailData.ingredients.juice = cocktailData.ingredients.juice.filter(Boolean);
+    cocktailData.ingredients.other = cocktailData.ingredients.other.filter(Boolean);
+
     const newCocktail = new Cocktail(cocktailData);
 
     try {
@@ -76,16 +83,67 @@ router.post('/', async (req, res) => {
     }
 });
 
+
 router.delete('/:id', async (req, res) => {
     try {
-        const deletedCocktail = await Cocktail.findByIdAndRemove(req.params.id);
-        if (!deletedCocktail) {
+        const cocktail = await Cocktail.findById(req.params.id);
+        
+        if (!cocktail) {
             return res.status(404).json({ message: "Cocktail not found!" });
         }
 
-        res.status(200).json({ message: "Cocktail deleted successfully!", deletedCocktail });
+        if (!cocktail.isDeletable) {
+            return res.status(403).json({ message: "Cocktail cannot be deleted!" });
+        }
+
+        await Cocktail.findByIdAndRemove(req.params.id);
+        res.status(200).json({ message: "Cocktail deleted successfully!", cocktail });
     } catch (error) {
         res.status(500).json({ message: "Failed to delete cocktail.", error });
+    }
+});
+
+
+router.get('/favorites', verifyToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+        if (user) {
+            res.json(user.favorites);
+        } else {
+            res.status(404).json({ message: "User not found" });
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch user favorites.", error });
+    }
+});
+
+router.put('/:id/favorite', verifyToken, async (req, res) => {
+    const cocktailId = req.params.id;
+    const userId = req.userId;
+
+    try {
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // provjeri ima li favorita
+        const index = user.favorites.indexOf(cocktailId);
+        
+        if (index === -1) {
+            // ako nije favorit, dodaj u favorite
+            user.favorites.push(cocktailId);
+        } else {
+            // ako je favorit, makni favorit
+            user.favorites.splice(index, 1);
+        }
+
+        await user.save();
+
+        res.status(200).json({ message: "Updated favorites" });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to update favorite status.", error });
     }
 });
 

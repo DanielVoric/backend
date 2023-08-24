@@ -15,8 +15,12 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    }
-});
+    },
+    favorites: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'Cocktail',
+        default: []
+}});
 
 UserSchema.pre('save', async function(next) {
     if (this.isModified('password')) {

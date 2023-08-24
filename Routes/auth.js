@@ -22,26 +22,36 @@ const verifyToken = (req, res, next) => {
     }
 };
 
+
 router.post('/register', async (req, res) => {
     try {
+        const { email, username } = req.body;
+
+        const existingUserByEmail = await User.findOne({ email });
+        if (existingUserByEmail) {
+            return res.status(400).json({ message: 'Username or Email already exist.' });
+        }
+
+        const existingUserByUsername = await User.findOne({ username });
+        if (existingUserByUsername) {
+            return res.status(400).json({ message: 'Username or Email already exist.' });
+        }
+
         const user = new User(req.body);
         await user.save();
-        res.status(201).send(user);
+        res.status(201).json({ message: "Registration successful." });
     } catch (error) {
-        res.status(400).send(error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+
 
 router.post('/login', async (req, res) => {
     try {
         const user = await User.findOne({ username: req.body.username });
-        if (!user) {
-            return res.status(400).json({ message: 'User not found' });
-        }
-
-        const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
-        if (!isPasswordValid) {
-            return res.status(400).json({ message: 'Invalid password' });
+        if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
+            return res.status(400).json({ message: 'Wrong username or password.' });
         }
 
         const token = jwt.sign({ userId: user._id }, 'YOUR_SECRET_KEY', { expiresIn: '1h' });
@@ -51,6 +61,7 @@ router.post('/login', async (req, res) => {
     }
 });
 
+
 // registriranje middlewarea za specificnu rutu 
 router.use('/some-protected-route', verifyToken);
 
@@ -59,4 +70,7 @@ router.get('/some-protected-route', (req, res) => {
     res.send('This is a protected route.');
 });
 
-module.exports = router;
+module.exports = {
+    authRouter: router,
+    verifyToken: verifyToken
+};
