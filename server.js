@@ -11,11 +11,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// MongoDB connection
-mongoose.connect("", { 
-    useNewUrlParser: true, 
-    useUnifiedTopology: true 
-});
+
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI || "mongodb+srv://koktelomat:UM3zTvaqcpDZZTaO@cluster0.jevhmyd.mongodb.net/?retryWrites=true&w=majority", { 
     useNewUrlParser: true, 
