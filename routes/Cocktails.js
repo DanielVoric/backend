@@ -128,23 +128,17 @@ router.put('/:id/favorite', verifyToken, async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // provjeri ima li favorita
-        const index = user.favorites.indexOf(cocktailId);
-        
-        if (index === -1) {
-            // ako nije favorit, dodaj u favorite
-            user.favorites.push(cocktailId);
+        if (user.favorites.includes(cocktailId)) {
+            await User.findByIdAndUpdate(userId, { $pull: { favorites: cocktailId } });
         } else {
-            // ako je favorit, makni favorit
-            user.favorites.splice(index, 1);
+            await User.findByIdAndUpdate(userId, { $push: { favorites: cocktailId } });
         }
 
-        await user.save();
-
-        res.status(200).json({ message: "Updated favorites" });
+        return res.status(200).json({ message: "Updated favorites" });
     } catch (error) {
-        res.status(500).json({ message: "Failed to update favorite status.", error });
+        return res.status(500).json({ message: "Failed to update favorite status.", error });
     }
 });
+
 
 module.exports = router;
