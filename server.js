@@ -12,10 +12,11 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB connection
-mongoose.connect("mongodb+srv://koktelomat:UM3zTvaqcpDZZTaO@cluster0.jevhmyd.mongodb.net/?retryWrites=true&w=majority", { 
+mongoose.connect(process.env.MONGODB_URI || "mongodb+srv://koktelomat:UM3zTvaqcpDZZTaO@cluster0.jevhmyd.mongodb.net/?retryWrites=true&w=majority", { 
     useNewUrlParser: true, 
     useUnifiedTopology: true 
 });
+
 mongoose.connection.once('open', () => {
     console.log('Connected to MongoDB');
 });
