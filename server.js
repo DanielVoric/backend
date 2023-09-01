@@ -1,9 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path');
-const cocktailRoutes = require('./routes/Cocktails');
-const { authRouter } = require('./routes/Auth');
+const cocktailRoutes = require('./routes/Cocktails'); 
+const { authRouter } = require('./routes/Auth');  
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -15,7 +14,6 @@ app.use(cors({
   }));
   app.use(express.json());
 
-  app.use(express.static(path.join(__dirname, 'path/to/your/dist')));
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI || "mongodb+srv://koktelomat:UM3zTvaqcpDZZTaO@cluster0.jevhmyd.mongodb.net/?retryWrites=true&w=majority", { 
@@ -30,10 +28,6 @@ mongoose.connection.once('open', () => {
 // Koristenje importane rute
 app.use('/Cocktails', cocktailRoutes); 
 app.use('/auth', authRouter);
-
-app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'frontend\client\public\index.html'));
-  });
 
 // Pokretanje servera
 app.listen(PORT, () => {
