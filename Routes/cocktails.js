@@ -6,8 +6,8 @@ const { verifyToken } = require('./Auth');
 
 router.get('/', async (req, res) => {
     try {
-        const cocktails = await Cocktail.find({});
-        res.json(cocktails);
+        const Cocktails = await Cocktail.find({});
+        res.json(Cocktails);
     } catch (error) {
         res.status(500).json({ message: "Failed to fetch cocktails.", error });
     }
@@ -15,14 +15,14 @@ router.get('/', async (req, res) => {
 
 router.get('/ingredients', async (req, res) => {
     try {
-        const cocktails = await Cocktail.find({});
+        const Cocktails = await Cocktail.find({});
         const allIngredients = {
             alcohol: [],
             juice: [],
             other: []
         };
 
-        cocktails.forEach(cocktail => {
+        Cocktails.forEach(cocktail => {
             allIngredients.alcohol.push(...cocktail.ingredients.alcohol);
             allIngredients.juice.push(...cocktail.ingredients.juice);
             allIngredients.other.push(...cocktail.ingredients.other);

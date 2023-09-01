@@ -21,7 +21,7 @@ mongoose.connection.once('open', () => {
 });
 
 // Koristenje importane rute
-app.use('/cocktails', cocktailRoutes); 
+app.use('/Cocktails', cocktailRoutes); 
 app.use('/auth', authRouter);
 
 // Pokretanje servera
