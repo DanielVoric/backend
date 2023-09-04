@@ -1,9 +1,12 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const router = express.Router();
+const router = express.Router(); //inicijalizacija express rutera
 const User = require('../models/User');
 
+
+
+//middleware za verifikaciju JWT tokena
 const verifyToken = (req, res, next) => {
     const bearerHeader = req.headers['authorization'];
     if (typeof bearerHeader !== 'undefined') {
@@ -11,7 +14,7 @@ const verifyToken = (req, res, next) => {
         const bearerToken = bearer[1];
         jwt.verify(bearerToken, 'YOUR_SECRET_KEY', (err, authData) => {
             if (err) {
-                res.sendStatus(403); 
+                res.sendStatus(403);
             } else {
                 req.userId = authData.userId;
                 next();
@@ -22,9 +25,9 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-
+//ruta za registraciju korisnika
 router.post('/register', async (req, res) => {
-    try {
+    try { //js proba runnat block, i hvata errore
         const { email, username } = req.body;
 
         const existingUserByEmail = await User.findOne({ email });
@@ -46,7 +49,7 @@ router.post('/register', async (req, res) => {
 });
 
 
-
+//prijava korisnika
 router.post('/login', async (req, res) => {
     try {
         const user = await User.findOne({ username: req.body.username });
@@ -61,7 +64,7 @@ router.post('/login', async (req, res) => {
     }
 });
 
-
+//ne koristim
 // registriranje middlewarea za specificnu rutu 
 router.use('/some-protected-route', verifyToken);
 

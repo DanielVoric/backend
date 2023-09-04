@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleman
-app.use(cors());
+app.use(cors()); //security feature
   app.use(express.json());
 
 
